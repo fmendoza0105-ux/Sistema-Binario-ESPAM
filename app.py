@@ -66,7 +66,7 @@ st.markdown(f"""
 <h1>SISTEMA BINARIO</h1>
 <h3>Escuela Superior Politécnica Agropecuaria de Manabí</h3>
 <h3>Manuel Félix López - Feria de Ciencias 2026</h3>
-<h4>👩‍🏫 Expositora Oficial Mgtr. Virginia Lucciola Mendoza Zambrano - Docente </h4>
+<h5>👩‍🏫 Expositora Oficial Mgtr. Virginia Lucciola Mendoza Zambrano - Docente </h5>
 </div>
 <div></div>
 </div>
