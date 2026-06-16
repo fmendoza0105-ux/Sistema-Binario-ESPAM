@@ -94,6 +94,23 @@ if convertir and entrada:
         pesos=[128,64,32,16,8,4,2,1]
         st.table({str(p):[b] for p,b in zip(pesos,binario)})
 
+    activos = binario.count("1")
+apagados = binario.count("0")
+s1,s2,s3 = st.columns(3)
+s1.metric(
+"Bits Activos",
+activos
+)
+s2.metric(
+"Bits Apagados",
+apagados
+)
+s3.metric(
+"Uso %",
+round((activos/8)*100,1)
+)
+
+
     else:
         st.subheader("ASCII → Binario")
         cols=st.columns(max(1,len(entrada)))
