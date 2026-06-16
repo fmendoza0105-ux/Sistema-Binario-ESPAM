@@ -115,7 +115,7 @@ with t2: st.markdown('<div class="info-card"><div class="info-card-title">🔌 �
 with t3: st.markdown('<div class="info-card"><div class="info-card-title">🔢 Equivalencia</div><div class="info-card-desc">Cada posición de un bit de derecha a izquierda duplica su valor (1, 2, 4, 8, 16, 32, 64, 128).</div></div>', unsafe_allow_html=True)
 with t4: st.markdown('<div class="info-card"><div class="info-card-title">💡 Datos e IA</div><div class="info-card-desc">Cualquier red, imagen, Inteligencia Artificial o sensor IoT en el agro transmite pulsos binarios.</div></div>', unsafe_allow_html=True)
 
-# --- BARRA LATERAL (CONVERSOR + JUEGO) ---
+# --- BARRA LATERAL (CONVERSOR + JUEGO CON EFECTOS) ---
 with st.sidebar:
     st.markdown("<h2 style='color:#053f31; text-align:center;'>🔄 CONVERSOR</h2>", unsafe_allow_html=True)
     entrada = st.text_input("Número o Texto:", value="42")
@@ -126,20 +126,25 @@ with st.sidebar:
     st.info(f"👉 **`{st.session_state.juego_binario}`**")
     
     respuesta_usuario = st.text_input("Tu respuesta decimal:", key="quiz_input")
-    if st.button("Comprobar Respuesta 🎯"):
+    
+    if st.button("Comprobar Respuesta 🎯", use_container_width=True):
         solucion = int(st.session_state.juego_binario, 2)
         if respuesta_usuario.isdigit() and int(respuesta_usuario) == solucion:
+            # INTERACCIÓN GANADORA
+            st.balloons()  # Lanzar globos por la pantalla
             st.success("¡CORRECTO! 🎉 ¡Eres un genio binario!")
             st.session_state.puntos += 10
-            st.balloons()
-            # Cambiar de número para la próxima ronda
+            # Generar un nuevo número para continuar jugando
             st.session_state.juego_binario = format(random.randint(1, 100), "08b")
             st.rerun()
         else:
-            st.error(f"Casi... Inténtalo de nuevo o mira el tablero central.")
+            # INTERACCIÓN INCORRECTA (SUGERENCIA DIDÁCTICA)
+            st.snow()  # Efecto de congelamiento/nieve
+            st.error(f"😢 ¡Oh no! Inténtalo de nuevo. El sistema se ha congelado un poco. ¡Revisa la tabla matemática central para guiarte!")
+            
     st.metric("Score del Stand 🏆", f"{st.session_state.puntos} pts")
 
-# --- LOGICA CENTRAL ---
+# --- LÓGICA CENTRAL ---
 if entrada:
     if entrada.isdigit():
         numero = int(entrada)
@@ -171,7 +176,7 @@ if entrada:
                 st.markdown(leds_html, unsafe_allow_html=True)
             
             with col_der:
-                # --- NUEVA MEJORA: SECCIÓN EN PALABRAS AUTOMÁTICA (DEL PROTOTIPO) ---
+                # Sección dinámica automática "En Palabras"
                 componentes_texto = [str(pesos[i]) for i in range(len(binario)) if binario[i] == "1"]
                 if componentes_texto:
                     frase_matematica = " más ".join(componentes_texto) + f" es igual a {numero}"
@@ -187,7 +192,7 @@ if entrada:
                 </div>
                 """, unsafe_allow_html=True)
             
-            # --- NUEVA MEJORA: GRÁFICO DE CONSUMO FÍSICO ---
+            # Gráfico de consumo físico
             activos = binario.count("1")
             pct_energia = (activos / len(binario)) * 100
             st.markdown(f"**⚡ Carga de Voltaje en los Transistores del Bus de Datos ({round(pct_energia,1)}%):**")
@@ -238,7 +243,7 @@ a1, a2, a3, a4, a5 = st.columns(5)
 apps = [
     ("💾 Almacenamiento", "Fotos, videos y archivos se guardan como miles de millones de ceros y unos en discos magnéticos o sólidos."),
     ("🌐 Redes e Internet", "Los datos viajan por fibra óptica como pulsos rápidos de luz (1) y total oscuridad (0)."),
-    ("🔒 Criptografía", "La seguridad web y contraseñas dependen de mezclar bits usando operadores lógicos lógicos."),
+    ("🔒 Criptografía", "La seguridad web y contraseñas dependen de mezclar bits usando operadores lógicos."),
     ("🤖 Inteligencia Artificial", "Las redes neuronales procesan billones de operaciones matemáticas que en su base son interruptores binarios."),
     ("🚜 Agricultura IoT", "Sensores miden humedad en Calceta, convierten el dato físico a bits y lo envían vía satélite a la nube.")
 ]
