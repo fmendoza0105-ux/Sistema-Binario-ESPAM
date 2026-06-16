@@ -5,11 +5,18 @@ import random
 # Configuración de página (Ancho completo)
 st.set_page_config(page_title="Sistema Binario ESPAM", page_icon="💻", layout="wide")
 
-# Inicializar variables de estado para el juego interactivo si no existen
+# --- CONTROL DE ESTADOS DE SESIÓN (EVITA CAÍDAS DE PÁGINA) ---
 if "juego_binario" not in st.session_state:
     st.session_state.juego_binario = format(random.randint(1, 100), "08b")
 if "puntos" not in st.session_state:
     st.session_state.puntos = 0
+if "estado_juego" not in st.session_state:
+    st.session_state.estado_juego = "pendiente"  # Cambia a "correcto" o "incorrecto"
+
+# Función limpia para pasar al siguiente reto sin romper el flujo de renderizado
+def siguiente_ejercicio():
+    st.session_state.juego_binario = format(random.randint(1, 100), "08b")
+    st.session_state.estado_juego = "pendiente"
 
 # Función para codificar la imagen del logo
 def get_base64(file):
@@ -115,32 +122,40 @@ with t2: st.markdown('<div class="info-card"><div class="info-card-title">🔌 �
 with t3: st.markdown('<div class="info-card"><div class="info-card-title">🔢 Equivalencia</div><div class="info-card-desc">Cada posición de un bit de derecha a izquierda duplica su valor (1, 2, 4, 8, 16, 32, 64, 128).</div></div>', unsafe_allow_html=True)
 with t4: st.markdown('<div class="info-card"><div class="info-card-title">💡 Datos e IA</div><div class="info-card-desc">Cualquier red, imagen, Inteligencia Artificial o sensor IoT en el agro transmite pulsos binarios.</div></div>', unsafe_allow_html=True)
 
-# --- BARRA LATERAL (CONVERSOR + JUEGO CON EFECTOS) ---
+# --- BARRA LATERAL (CONVERSOR + JUEGO CON EFECTOS CORREGIDOS) ---
 with st.sidebar:
     st.markdown("<h2 style='color:#053f31; text-align:center;'>🔄 CONVERSOR</h2>", unsafe_allow_html=True)
     entrada = st.text_input("Número o Texto:", value="42")
     
     st.markdown("---")
     st.markdown("<h3 style='color:#00bc62; text-align:center;'>🎮 TRIVIA INTERACTIVA</h3>", unsafe_allow_html=True)
-    st.write("¡Haz que el público adivine! ¿Qué número decimal representa este código binario?")
+    st.write("¿Qué número decimal representa este código binario?")
     st.info(f"👉 **`{st.session_state.juego_binario}`**")
     
     respuesta_usuario = st.text_input("Tu respuesta decimal:", key="quiz_input")
     
-    if st.button("Comprobar Respuesta 🎯", use_container_width=True):
+    col_b1, col_b2 = st.columns(2)
+    with col_b1:
+        btn_comprobar = st.button("Comprobar 🎯", use_container_width=True)
+    with col_b2:
+        btn_siguiente = st.button("Siguiente ➡️", use_container_width=True, on_click=siguiente_ejercicio)
+        
+    # Evaluar la respuesta al pulsar el botón sin recargar abruptamente la app
+    if btn_comprobar and respuesta_usuario:
         solucion = int(st.session_state.juego_binario, 2)
         if respuesta_usuario.isdigit() and int(respuesta_usuario) == solucion:
-            # INTERACCIÓN GANADORA
-            st.balloons()  # Lanzar globos por la pantalla
-            st.success("¡CORRECTO! 🎉 ¡Eres un genio binario!")
+            st.session_state.estado_juego = "correcto"
             st.session_state.puntos += 10
-            # Generar un nuevo número para continuar jugando
-            st.session_state.juego_binario = format(random.randint(1, 100), "08b")
-            st.rerun()
         else:
-            # INTERACCIÓN INCORRECTA (SUGERENCIA DIDÁCTICA)
-            st.snow()  # Efecto de congelamiento/nieve
-            st.error(f"😢 ¡Oh no! Inténtalo de nuevo. El sistema se ha congelado un poco. ¡Revisa la tabla matemática central para guiarte!")
+            st.session_state.estado_juego = "incorrecto"
+
+    # Muestra los efectos según el estado guardado
+    if st.session_state.estado_juego == "correcto":
+        st.balloons()  # Despliega los globos de manera estable
+        st.success("🎉 ¡CORRECTO! ¡Eres un genio binario! (+10 pts). Presiona 'Siguiente ➡️' para otro reto.")
+    elif st.session_state.estado_juego == "incorrecto":
+        st.snow()  # Efecto de copos de nieve
+        st.error("😢 ¡Oh no! Inténtalo de nuevo. El sistema se ha congelado. ¡Mira la tabla central para guiarte!")
             
     st.metric("Score del Stand 🏆", f"{st.session_state.puntos} pts")
 
@@ -158,7 +173,6 @@ if entrada:
         with st.container():
             st.markdown('<div class="custom-container">', unsafe_allow_html=True)
             
-            # Layout del tablero: Datos a la izquierda, bloque "En Palabras" a la derecha
             col_izq, col_der = st.columns([3, 1.2])
             
             with col_izq:
@@ -176,7 +190,6 @@ if entrada:
                 st.markdown(leds_html, unsafe_allow_html=True)
             
             with col_der:
-                # Sección dinámica automática "En Palabras"
                 componentes_texto = [str(pesos[i]) for i in range(len(binario)) if binario[i] == "1"]
                 if componentes_texto:
                     frase_matematica = " más ".join(componentes_texto) + f" es igual a {numero}"
@@ -245,7 +258,7 @@ apps = [
     ("🌐 Redes e Internet", "Los datos viajan por fibra óptica como pulsos rápidos de luz (1) y total oscuridad (0)."),
     ("🔒 Criptografía", "La seguridad web y contraseñas dependen de mezclar bits usando operadores lógicos."),
     ("🤖 Inteligencia Artificial", "Las redes neuronales procesan billones de operaciones matemáticas que en su base son interruptores binarios."),
-    ("🚜 Agricultura IoT", "Sensores miden humedad en Calceta, convierten el dato físico a bits y lo envían vía satélite a la nube.")
+    ("🚜 Agricultura IoT", "Sensores miidieron humedad en Calceta, convierten el dato físico a bits y lo envían vía satélite a la nube.")
 ]
 for col, (title, desc) in zip([a1, a2, a3, a4, a5], apps):
     with col:
