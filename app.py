@@ -15,6 +15,19 @@ logo = get_base64("logo-espam.png")
 
 st.markdown("""
 <style>
+.logo-box{
+background:white;
+padding:20px;
+border-radius:20px;
+display:inline-block;
+
+box-shadow:
+0 0 15px rgba(255,255,255,.8),
+0 0 30px rgba(255,255,255,.6);
+
+border:4px solid white;
+}
+
 .stApp{
 background:linear-gradient(135deg,#081c15,#1b4332,#2d6a4f);
 }
