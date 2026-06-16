@@ -39,7 +39,11 @@ box-shadow:0 0 10px #00ff66,0 0 25px #00ff66;
 </style>
 """, unsafe_allow_html=True)
 
-logo_html = f'<img src="data:image/png;base64,{logo}" width="180">' if logo else ""
+logo_html = f"""
+<div class='logo-box'>
+<img src="data:image/png;base64,{logo}" width="180">
+</div>
+""" if logo else ""
 
 st.markdown(f"""
 <div class='header'>
@@ -48,7 +52,10 @@ st.markdown(f"""
 <div style='text-align:center;color:white'>
 <h1>SISTEMA BINARIO</h1>
 <h3>Escuela Superior Politécnica Agropecuaria de Manabí</h3>
-<h4>Manuel Félix López - Feria de Ciencias 2026</h4>
+<h3>Manuel Félix López - Feria de Ciencias 2026</h3>
+<h4>👩‍🏫 Expositora Oficial
+Mgtr. Virginia Lucciola Mendoza Zambrano
+Docente y Magíster </h4>
 </div>
 <div></div>
 </div>
