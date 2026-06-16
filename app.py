@@ -10,6 +10,8 @@ if "juego_binario" not in st.session_state:
     st.session_state.juego_binario = format(random.randint(1, 100), "08b")
 if "puntos" not in st.session_state:
     st.session_state.puntos = 0
+if "respondido_correcto" not in st.session_state:
+    st.session_state.respondido_correcto = False
 
 # Función para codificar la imagen del logo
 def get_base64(file):
@@ -115,32 +117,39 @@ with t2: st.markdown('<div class="info-card"><div class="info-card-title">🔌 �
 with t3: st.markdown('<div class="info-card"><div class="info-card-title">🔢 Equivalencia</div><div class="info-card-desc">Cada posición de un bit de derecha a izquierda duplica su valor (1, 2, 4, 8, 16, 32, 64, 128).</div></div>', unsafe_allow_html=True)
 with t4: st.markdown('<div class="info-card"><div class="info-card-title">💡 Datos e IA</div><div class="info-card-desc">Cualquier red, imagen, Inteligencia Artificial o sensor IoT en el agro transmite pulsos binarios.</div></div>', unsafe_allow_html=True)
 
-# --- BARRA LATERAL (CONVERSOR + JUEGO CON EFECTOS) ---
+# --- BARRA LATERAL (CONVERSOR + JUEGO CORREGIDO) ---
 with st.sidebar:
     st.markdown("<h2 style='color:#053f31; text-align:center;'>🔄 CONVERSOR</h2>", unsafe_allow_html=True)
     entrada = st.text_input("Número o Texto:", value="42")
     
     st.markdown("---")
     st.markdown("<h3 style='color:#00bc62; text-align:center;'>🎮 TRIVIA INTERACTIVA</h3>", unsafe_allow_html=True)
-    st.write("¡Haz que el público adivine! ¿Qué número decimal representa este código binario?")
+    st.write("¿Qué número decimal representa este código binario?")
     st.info(f"👉 **`{st.session_state.juego_binario}`**")
     
     respuesta_usuario = st.text_input("Tu respuesta decimal:", key="quiz_input")
     
+    # Botón principal para comprobar
     if st.button("Comprobar Respuesta 🎯", use_container_width=True):
         solucion = int(st.session_state.juego_binario, 2)
         if respuesta_usuario.isdigit() and int(respuesta_usuario) == solucion:
-            # INTERACCIÓN GANADORA
-            st.balloons()  # Lanzar globos por la pantalla
-            st.success("¡CORRECTO! 🎉 ¡Eres un genio binario!")
+            st.session_state.respondido_correcto = True
             st.session_state.puntos += 10
-            # Generar un nuevo número para continuar jugando
-            st.session_state.juego_binario = format(random.randint(1, 100), "08b")
-            st.rerun()
         else:
-            # INTERACCIÓN INCORRECTA (SUGERENCIA DIDÁCTICA)
-            st.snow()  # Efecto de congelamiento/nieve
-            st.error(f"😢 ¡Oh no! Inténtalo de nuevo. El sistema se ha congelado un poco. ¡Revisa la tabla matemática central para guiarte!")
+            st.session_state.respondido_correcto = False
+            st.snow()  # Lanza nieve de advertencia
+            st.error("😢 ¡Casi! Revisa bien la tabla matemática del centro e intenta otra vez.")
+            
+    # Si la respuesta fue correcta, renderizamos las celebraciones sin interrumpirlas
+    if st.session_state.respondido_correcto:
+        st.balloons()  # Lanzar los globos de celebración
+        st.success("¡CORRECTO! 🎉 ¡Eres un genio binario! (+10 pts)")
+        
+        # Ofrecemos un botón limpio para generar el siguiente número y continuar
+        if st.button("Siguiente reto ➡️", use_container_width=True):
+            st.session_state.juego_binario = format(random.randint(1, 100), "08b")
+            st.session_state.respondido_correcto = False
+            st.rerun()
             
     st.metric("Score del Stand 🏆", f"{st.session_state.puntos} pts")
 
@@ -243,13 +252,4 @@ a1, a2, a3, a4, a5 = st.columns(5)
 apps = [
     ("💾 Almacenamiento", "Fotos, videos y archivos se guardan como miles de millones de ceros y unos en discos magnéticos o sólidos."),
     ("🌐 Redes e Internet", "Los datos viajan por fibra óptica como pulsos rápidos de luz (1) y total oscuridad (0)."),
-    ("🔒 Criptografía", "La seguridad web y contraseñas dependen de mezclar bits usando operadores lógicos."),
-    ("🤖 Inteligencia Artificial", "Las redes neuronales procesan billones de operaciones matemáticas que en su base son interruptores binarios."),
-    ("🚜 Agricultura IoT", "Sensores miden humedad en Calceta, convierten el dato físico a bits y lo envían vía satélite a la nube.")
-]
-for col, (title, desc) in zip([a1, a2, a3, a4, a5], apps):
-    with col:
-        st.markdown(f'<div style="background: white; padding: 15px; border-radius: 10px; border-top: 4px solid #00bc62; box-shadow: 0 4px 6px rgba(0,0,0,0.03); height:100%;"><b style="color:#053f31;">{title}</b><p style="font-size:12px; color:#555; margin-top:8px;">{desc}</p></div>', unsafe_allow_html=True)
-
-# --- FOOTER ---
-st.markdown('<div class="footer-bar">ESPAM MFL | Feria de Ciencias de Ingeniería 2026 — Calceta, Manabí, Ecuador</div>', unsafe_allow_html=True)
+    ("🔒 Criptografía",
