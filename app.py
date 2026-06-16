@@ -41,7 +41,7 @@ box-shadow:0 0 10px #00ff66,0 0 25px #00ff66;
 
 logo_html = f"""
 <div class='logo-box'>
-<img src="data:image/png;base64,{logo}" width="180">
+<img src="data:image/png;base64,{logo}" width="230">
 </div>
 """ if logo else ""
 
