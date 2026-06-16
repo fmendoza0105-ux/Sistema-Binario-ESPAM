@@ -48,8 +48,8 @@ logo_html = f"""
 st.markdown(f"""
 <div class='header'>
 <div style='display:flex;align-items:center;justify-content:space-between'>
-<div>{logo_html}</div>
-<div style='text-align:center;color:white'>
+<div style="width:30%; text-align:center;"> {logo_html} </div>
+<div style='width:70%;text-align:center;color:white'>
 <h1>SISTEMA BINARIO</h1>
 <h3>Escuela Superior Politécnica Agropecuaria de Manabí</h3>
 <h3>Manuel Félix López - Feria de Ciencias 2026</h3>
