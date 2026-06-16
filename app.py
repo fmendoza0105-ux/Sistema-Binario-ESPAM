@@ -67,37 +67,38 @@ st.markdown("""
         line-height: 1.4;
     }
 
-    /* Contenedor de Resultados (Tablero) */
-    .results-container {
+    /* Estilo del contenedor nativo de resultados */
+    .custom-container {
         background: white;
         border-radius: 12px;
         border: 1px solid #e0e0e0;
-        margin-top: 20px;
-        overflow: hidden;
+        padding: 25px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        margin-top: 10px;
     }
-    .results-title-bar {
+    .custom-title-bar {
         background: #02231c;
         color: white;
         padding: 12px 20px;
         font-weight: bold;
         font-size: 16px;
-    }
-    .results-body {
-        padding: 25px;
+        border-radius: 12px 12px 0 0;
+        margin-top: 20px;
     }
 
     /* LEDs Tridimensionales */
     .led-container {
         display: flex;
         justify-content: center;
-        gap: 15px;
+        gap: 20px;
         margin: 25px 0;
         flex-wrap: wrap;
+        width: 100%;
     }
     .led-box {
         text-align: center;
-        width: 65px;
+        width: 70px;
+        display: inline-block;
     }
     .led {
         width: 60px;
@@ -105,7 +106,6 @@ st.markdown("""
         border-radius: 50%;
         margin: 0 auto 8px auto;
         border: 4px solid #333;
-        transition: all 0.3s ease;
     }
     /* LED Encendido: Degradado verde radial con brillo */
     .led.on {
@@ -118,9 +118,10 @@ st.markdown("""
         box-shadow: inset 0 2px 5px rgba(255,255,255,0.2);
     }
     .led-bit {
-        font-size: 16px;
+        font-size: 18px;
         font-weight: bold;
-        color: #333;
+        color: #222;
+        margin-top: 5px;
     }
 
     /* Tabla de Pesos/Potencias */
@@ -135,13 +136,13 @@ st.markdown("""
     .potencia-table th {
         background: #053f31;
         color: white;
-        padding: 8px;
+        padding: 10px;
         font-size: 13px;
         font-weight: normal;
         border: 1px solid #e0e0e0;
     }
     .potencia-table td {
-        padding: 10px;
+        padding: 12px;
         text-align: center;
         border: 1px solid #e0e0e0;
         font-size: 14px;
@@ -240,7 +241,7 @@ with t4:
 # --- CONFIGURACIÓN DE LA BARRA LATERAL (CONVERSOR) ---
 with st.sidebar:
     st.markdown("<h2 style='color:#053f31; text-align:center;'>🔄 CONVERSOR BINARIO</h2>", unsafe_allow_html=True)
-    st.write("Ingresa un número entero (ej. 42) o un nombre/palabra (ej. ESPAM) para calcular:")
+    st.write("Ingresa un número entero o un nombre/palabra para calcular:")
     
     entrada = st.text_input("Número o Texto:", value="42", placeholder="Ejemplo: 42 o ESPAM")
     st.markdown("<br>", unsafe_allow_html=True)
@@ -265,104 +266,95 @@ if entrada:
         
         pesos = [2**i for i in range(len(binario)-1, -1, -1)]
 
-        # Abrimos contenedor principal de resultados
-        st.markdown("""
-        <div class="results-container">
-            <div class="results-title-bar">💻 TABLERO BINARIO EN TIEMPO REAL</div>
-            <div class="results-body">
-        """, unsafe_allow_html=True)
+        # Título del Tablero
+        st.markdown('<div class="custom-title-bar">💻 TABLERO BINARIO EN TIEMPO REAL</div>', unsafe_allow_html=True)
         
-        # Columnas de Métrica Superior
-        m1, m2, m3 = st.columns([1, 2, 1])
-        with m1:
-            st.markdown(f"<div style='text-align:center;'><h3>Decimal</h3><h1 style='color:#053f31; font-size:50px;'>{numero}</h1></div>", unsafe_allow_html=True)
-        with m2:
-            st.markdown(f"<div style='text-align:center;'><h3>Representación Binaria</h3><h1 style='color:#00bc62; font-size:50px; font-family:monospace; letter-spacing:4px;'>{binario}</h1></div>", unsafe_allow_html=True)
-        with m3:
-            st.markdown(f"<div style='text-align:center;'><h3>Hexadecimal</h3><h1 style='color:#7b2cbf; font-size:50px;'>{hexa}</h1></div>", unsafe_allow_html=True)
-        
-        # Construcción HTML de los LEDs
-        leds_html = "<div class='led-container'>"
-        for bit in binario:
-            estado = "on" if bit == "1" else "off"
-            leds_html += f"""
-                <div class='led-box'>
-                    <div class='led {estado}'></div>
-                    <div class='led-bit'>{bit}</div>
-                </div>
+        # Usamos st.container nativo para evitar conflictos con las columnas
+        with st.container():
+            st.markdown('<div class="custom-container">', unsafe_allow_html=True)
+            
+            # Columnas de Métrica Superior
+            m1, m2, m3 = st.columns([1, 2, 1])
+            with m1:
+                st.markdown(f"<div style='text-align:center;'><h3>Decimal</h3><h1 style='color:#053f31; font-size:50px; margin:0;'>{numero}</h1></div>", unsafe_allow_html=True)
+            with m2:
+                st.markdown(f"<div style='text-align:center;'><h3>Representación Binaria</h3><h1 style='color:#00bc62; font-size:50px; font-family:monospace; letter-spacing:4px; margin:0;'>{binario}</h1></div>", unsafe_allow_html=True)
+            with m3:
+                st.markdown(f"<div style='text-align:center;'><h3>Hexadecimal</h3><h1 style='color:#7b2cbf; font-size:50px; margin:0;'>{hexa}</h1></div>", unsafe_allow_html=True)
+            
+            # Construcción HTML de los LEDs
+            leds_html = "<div class='led-container'>"
+            for bit in binario:
+                estado = "on" if bit == "1" else "off"
+                leds_html += f"""<div class='led-box'><div class='led {estado}'></div><div class='led-bit'>{bit}</div></div>"""
+            leds_html += "</div>"
+            
+            # Renderizado seguro de los LEDs
+            st.markdown(leds_html, unsafe_allow_html=True)
+            
+            st.markdown("### 🔢 Desglose y Posición Matemática de los Bits")
+            
+            th_potencias = "".join([f"<th>2<sup>{len(binario)-1-i}</sup></th>" for i in range(len(binario))])
+            td_pesos = "".join([f"<td>{p}</td>" for p in pesos])
+            td_valores = "".join([f"<td class='{'active-row' if b=='1' else ''}'>{p if b=='1' else 0}</td>" for p, b in zip(pesos, binario)])
+            
+            tabla_html = f"""
+            <table class="potencia-table">
+                <tr><th style='background:#02231c;'>Posición (Potencia)</th>{th_potencias}</tr>
+                <tr><td style='font-weight:bold; background:#f0f0f0;'>Valor del Peso</td>{td_pesos}</tr>
+                <tr><td style='font-weight:bold; background:#f0f0f0;'>Suma Resultante</td>{td_valores}</tr>
+            </table>
             """
-        leds_html += "</div>"
-        
-        # RENDERIZADO CORRECTO DE LOS LEDS
-        st.markdown(leds_html, unsafe_allow_html=True)
-        
-        st.markdown("### 🔢 Desglose y Posición Matemática de los Bits")
-        
-        th_potencias = "".join([f"<th>2<sup>{len(binario)-1-i}</sup></th>" for i in range(len(binario))])
-        td_pesos = "".join([f"<td>{p}</td>" for p in pesos])
-        td_valores = "".join([f"<td class='{'active-row' if b=='1' else ''}'>{p if b=='1' else 0}</td>" for p, b in zip(pesos, binario)])
-        
-        tabla_html = f"""
-        <table class="potencia-table">
-            <tr><th style='background:#02231c;'>Posición (Potencia)</th>{th_potencias}</tr>
-            <tr><td style='font-weight:bold; background:#f0f0f0;'>Valor del Peso</td>{td_pesos}</tr>
-            <tr><td style='font-weight:bold; background:#f0f0f0;'>Suma Resultante</td>{td_valores}</tr>
-        </table>
-        """
-        st.markdown(tabla_html, unsafe_allow_html=True)
-        
-        componentes_suma = [str(pesos[i]) for i in range(len(binario)) if binario[i] == "1"]
-        string_suma = " + ".join(componentes_suma) if componentes_suma else "0"
-        
-        st.markdown(f"""
-        <div style="background: #e8f5e9; border: 1px solid #1b5e20; padding: 15px; border-radius: 8px; text-align: center; margin-top: 15px; font-size: 18px; color: #1b5e20;">
-            🧬 <b>Operación:</b> {string_suma} = <b>{numero}</b>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        activos = binario.count("1")
-        apagados = binario.count("0")
-        
-        s1, s2, s3 = st.columns(3)
-        s1.metric("Bits Encendidos (1)", activos)
-        s2.metric("Bits Apagados (0)", apagados)
-        s3.metric("Eficiencia / Uso de Energía", f"{round((activos/len(binario))*100, 1)} %")
+            st.markdown(tabla_html, unsafe_allow_html=True)
+            
+            componentes_suma = [str(pesos[i]) for i in range(len(binario)) if binario[i] == "1"]
+            string_suma = " + ".join(componentes_suma) if componentes_suma else "0"
+            
+            st.markdown(f"""
+            <div style="background: #e8f5e9; border: 1px solid #1b5e20; padding: 15px; border-radius: 8px; text-align: center; margin-top: 20px; font-size: 18px; color: #1b5e20;">
+                🧬 <b>Operación:</b> {string_suma} = <b>{numero}</b>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            activos = binario.count("1")
+            apagados = binario.count("0")
+            
+            s1, s2, s3 = st.columns(3)
+            s1.metric("Bits Encendidos (1)", activos)
+            s2.metric("Bits Apagados (0)", apagados)
+            s3.metric("Eficiencia / Uso de Energía", f"{round((activos/len(binario))*100, 1)} %")
 
-        # Cerramos contenedor principal de resultados numéricos
-        st.markdown("</div></div>", unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
     # CASO 2: ENTRADA ES TEXTO (ASCII A BINARIO)
     else:
-        # Abrimos contenedor principal de resultados de texto
-        st.markdown("""
-        <div class="results-container">
-            <div class="results-title-bar">🔠 TRADUCTOR TEXTO ➔ ASCII ➔ BINARIO</div>
-            <div class="results-body">
-        """, unsafe_allow_html=True)
+        st.markdown('<div class="custom-title-bar">🔠 TRADUCTOR TEXTO ➔ ASCII ➔ BINARIO</div>', unsafe_allow_html=True)
         
-        letras = [ch for ch in entrada]
-        cols = st.columns(len(letras))
-        
-        for i, ch in enumerate(letras):
-            ascii_val = ord(ch)
-            bin_val = format(ascii_val, "08b")
-            minileds = "".join([f"<div class='miniled {'on' if b=='1' else 'off'}'></div>" for b in bin_val])
+        with st.container():
+            st.markdown('<div class="custom-container">', unsafe_allow_html=True)
             
-            with cols[i]:
-                st.markdown(f"""
-                <div class="ascii-card">
-                    <div class="ascii-char">{ch}</div>
-                    <div class="ascii-meta">
-                        <b>ASCII:</b> {ascii_val}<br>
-                        <span style="font-family:monospace; font-weight:bold; color:#00bc62;">{bin_val}</span>
-                    </div>
-                    <div class="miniled-container">{minileds}</div>
-                </div>
-                """, unsafe_allow_html=True)
+            letras = [ch for ch in entrada]
+            cols = st.columns(len(letras))
+            
+            for i, ch in enumerate(letras):
+                ascii_val = ord(ch)
+                bin_val = format(ascii_val, "08b")
+                minileds = "".join([f"<div class='miniled {'on' if b=='1' else 'off'}'></div>" for b in bin_val])
                 
-        # Cerramos contenedor principal de resultados de texto
-        st.markdown("</div></div>", unsafe_allow_html=True)
+                with cols[i]:
+                    st.markdown(f"""
+                    <div class="ascii-card">
+                        <div class="ascii-char">{ch}</div>
+                        <div class="ascii-meta">
+                            <b>ASCII:</b> {ascii_val}<br>
+                            <span style="font-family:monospace; font-weight:bold; color:#00bc62;">{bin_val}</span>
+                        </div>
+                        <div class="miniled-container">{minileds}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+            
+            st.markdown('</div>', unsafe_allow_html=True)
 
 
 # --- SECCIÓN INFERIOR: APLICACIONES REALES ---
@@ -374,7 +366,7 @@ apps = [
     ("🌐 Redes e Internet", "Los datos viajan por cables de cobre o fibra óptica como pulsos eléctricos o haces de luz (1) y oscuridad (0)."),
     ("🔒 Criptografía", "La seguridad informática y encriptación de contraseñas depende de operaciones lógicas binarias (XOR)."),
     ("🤖 Inteligencia Artificial", "Los modelos de IA procesan matrices masivas de datos que en su nivel más bajo son operaciones binarias."),
-    ("🚜 Agricultura IoT", "Sensores en campo miidieron humedad o temperatura y envían datos binarios a la nube para optimizar el agro.")
+    ("🚜 Agricultura IoT", "Sensores en campo miden humedad o temperatura y envían datos binarios a la nube para optimizar el agro.")
 ]
 
 for col, (title, desc) in zip([a1, a2, a3, a4, a5], apps):
