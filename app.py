@@ -74,6 +74,7 @@ st.markdown("""
         border: 1px solid #e0e0e0;
         margin-top: 20px;
         overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }
     .results-title-bar {
         background: #02231c;
@@ -86,7 +87,7 @@ st.markdown("""
         padding: 25px;
     }
 
-    /* LEDs Tridimensionales (Copiados exactamente del Prototipo) */
+    /* LEDs Tridimensionales */
     .led-container {
         display: flex;
         justify-content: center;
@@ -122,7 +123,7 @@ st.markdown("""
         color: #333;
     }
 
-    /* Tabla de Pesos/Potencias como el prototipo */
+    /* Tabla de Pesos/Potencias */
     .potencia-table {
         width: 100%;
         border-collapse: collapse;
@@ -244,7 +245,6 @@ with st.sidebar:
     entrada = st.text_input("Número o Texto:", value="42", placeholder="Ejemplo: 42 o ESPAM")
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Explicación breve estática en barra lateral (igual que el prototipo)
     st.markdown("""
     <div style="background:#f9f9f9; padding:15px; border-radius:8px; border:1px solid #e0e0e0; font-size:13px;">
         <b style="color:#053f31;">Tipos de conversión:</b><br><br>
@@ -254,26 +254,25 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
 
-# --- PROCESAMIENTO LOGÍCO Y TABLERO DE RESULTADOS ---
+# --- PROCESAMIENTO LÓGICO Y TABLERO DE RESULTADOS ---
 if entrada:
     # CASO 1: ENTRADA ES UN NÚMERO
     if entrada.isdigit():
         numero = int(entrada)
-        # Asegurar representación en 8 bits (o más si el número es mayor a 255)
         num_bits = max(8, numero.bit_length())
         binario = format(numero, f"0{num_bits}b")
         hexa = hex(numero).upper().replace("0X", "#")
         
-        # Array de potencias de 2 invertido para los pesos correspondientes
         pesos = [2**i for i in range(len(binario)-1, -1, -1)]
 
-        st.markdown(f"""
+        # Abrimos contenedor principal de resultados
+        st.markdown("""
         <div class="results-container">
             <div class="results-title-bar">💻 TABLERO BINARIO EN TIEMPO REAL</div>
             <div class="results-body">
         """, unsafe_allow_html=True)
         
-        # Columnas de Métrica Superior Interna
+        # Columnas de Métrica Superior
         m1, m2, m3 = st.columns([1, 2, 1])
         with m1:
             st.markdown(f"<div style='text-align:center;'><h3>Decimal</h3><h1 style='color:#053f31; font-size:50px;'>{numero}</h1></div>", unsafe_allow_html=True)
@@ -282,7 +281,7 @@ if entrada:
         with m3:
             st.markdown(f"<div style='text-align:center;'><h3>Hexadecimal</h3><h1 style='color:#7b2cbf; font-size:50px;'>{hexa}</h1></div>", unsafe_allow_html=True)
         
-        # Renderizado de LEDs Dinámicos basados en los bits
+        # Construcción HTML de los LEDs
         leds_html = "<div class='led-container'>"
         for bit in binario:
             estado = "on" if bit == "1" else "off"
@@ -293,12 +292,12 @@ if entrada:
                 </div>
             """
         leds_html += "</div>"
+        
+        # RENDERIZADO CORRECTO DE LOS LEDS
         st.markdown(leds_html, unsafe_allow_html=True)
         
-        # Explicación matemática interactiva en formato tabla (Estilo el prototipo)
         st.markdown("### 🔢 Desglose y Posición Matemática de los Bits")
         
-        # Construir la tabla HTML de potencias y valores activos
         th_potencias = "".join([f"<th>2<sup>{len(binario)-1-i}</sup></th>" for i in range(len(binario))])
         td_pesos = "".join([f"<td>{p}</td>" for p in pesos])
         td_valores = "".join([f"<td class='{'active-row' if b=='1' else ''}'>{p if b=='1' else 0}</td>" for p, b in zip(pesos, binario)])
@@ -312,7 +311,6 @@ if entrada:
         """
         st.markdown(tabla_html, unsafe_allow_html=True)
         
-        # Ecuación de la suma de los pesos activos
         componentes_suma = [str(pesos[i]) for i in range(len(binario)) if binario[i] == "1"]
         string_suma = " + ".join(componentes_suma) if componentes_suma else "0"
         
@@ -322,7 +320,6 @@ if entrada:
         </div>
         """, unsafe_allow_html=True)
         
-        # Métricas de uso de bits abajo del tablero
         st.markdown("<br>", unsafe_allow_html=True)
         activos = binario.count("1")
         apagados = binario.count("0")
@@ -332,25 +329,24 @@ if entrada:
         s2.metric("Bits Apagados (0)", apagados)
         s3.metric("Eficiencia / Uso de Energía", f"{round((activos/len(binario))*100, 1)} %")
 
+        # Cerramos contenedor principal de resultados numéricos
         st.markdown("</div></div>", unsafe_allow_html=True)
 
     # CASO 2: ENTRADA ES TEXTO (ASCII A BINARIO)
     else:
-        st.markdown(f"""
+        # Abrimos contenedor principal de resultados de texto
+        st.markdown("""
         <div class="results-container">
             <div class="results-title-bar">🔠 TRADUCTOR TEXTO ➔ ASCII ➔ BINARIO</div>
             <div class="results-body">
         """, unsafe_allow_html=True)
         
-        # Generar un grid de columnas dinámicas según el número de letras
         letras = [ch for ch in entrada]
         cols = st.columns(len(letras))
         
         for i, ch in enumerate(letras):
             ascii_val = ord(ch)
             bin_val = format(ascii_val, "08b")
-            
-            # Crear los minileds para cada letra individual
             minileds = "".join([f"<div class='miniled {'on' if b=='1' else 'off'}'></div>" for b in bin_val])
             
             with cols[i]:
@@ -365,10 +361,11 @@ if entrada:
                 </div>
                 """, unsafe_allow_html=True)
                 
+        # Cerramos contenedor principal de resultados de texto
         st.markdown("</div></div>", unsafe_allow_html=True)
 
 
-# --- SECCIÓN INFERIOR: APLICACIONES REALES (ESTILO GRID MODERNO) ---
+# --- SECCIÓN INFERIOR: APLICACIONES REALES ---
 st.markdown("<br><h3 style='color:#053f31;'>🌍 Aplicaciones del Sistema Binario en el Mundo Real</h3>", unsafe_allow_html=True)
 
 a1, a2, a3, a4, a5 = st.columns(5)
@@ -377,7 +374,7 @@ apps = [
     ("🌐 Redes e Internet", "Los datos viajan por cables de cobre o fibra óptica como pulsos eléctricos o haces de luz (1) y oscuridad (0)."),
     ("🔒 Criptografía", "La seguridad informática y encriptación de contraseñas depende de operaciones lógicas binarias (XOR)."),
     ("🤖 Inteligencia Artificial", "Los modelos de IA procesan matrices masivas de datos que en su nivel más bajo son operaciones binarias."),
-    ("🚜 Agricultura IoT", "Sensores en campo miden humedad o temperatura y envían datos binarios a la nube para optimizar el agro.")
+    ("🚜 Agricultura IoT", "Sensores en campo miidieron humedad o temperatura y envían datos binarios a la nube para optimizar el agro.")
 ]
 
 for col, (title, desc) in zip([a1, a2, a3, a4, a5], apps):
